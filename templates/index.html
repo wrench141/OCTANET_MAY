@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            width: max-content;
+            padding: 30px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #b5b5ff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            width: max-content;
+            font-size: 16px;
+            background-color: #b5b5ff;
+            color: #000;
+            word-wrap: nowrap;
+            white-space: nowrap;
+            border: none;
+            border-radius: 5px;
+            font-family: "Poppins";
+            padding: 0 10px;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #9999ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        li span {
+            flex-grow: 1;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        li.completed span {
+            text-decoration: line-through;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        li button {
+            background-color: #ff6b6b;
+            color: #000;
+            font-family: "Poppins";
+            margin-left: 10px;
+            height: 30px;
+        }
+
+        li button.delete:hover {
+            background-color: #ff4d4d;
+        }
+
+        /* Custom Checkbox Styles */
+        .checkbox-container {
+            display: inline-block;
+            position: relative;
+            padding-left: 30px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            user-select: none;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkbox-mark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-container input:checked ~ .checkbox-mark {
+            background-color: #b5b5ff;
+        }
+
+        .checkbox-mark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+            border: solid #000;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-container input:checked ~ .checkbox-mark:after {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>OBJECTIVES</h1>
+        <p style="margin-bottom: 40px; font-size: 13px; color: #9e9e9e;">Monitor and control your daily activities.</p>
+        <div style="display: flex; gap: 15px; width: max-content;">
+            <input type="text" id="taskInput" placeholder="Enter a new task">
+            <select id="categorySelect">
+                <option value="">Select a category</option>
+                <option value="work">Work</option>
+                <option value="personal">Personal</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="date" id="deadlineInput" placeholder="Set a deadline">
+            <select id="prioritySelect">
+                <option value="">Select a priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <button onclick="addTask()">add task</button>
+        </div>
+        <ul id="taskList">
+        </ul>
+    </div>
+
+    <script>
+        let tasks = [];
+
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const categorySelect = document.getElementById('categorySelect');
+            const deadlineInput = document.getElementById('deadlineInput');
+            const prioritySelect = document.getElementById('prioritySelect');
+
+            const taskText = taskInput.value.trim();
+            const category = categorySelect.value;
+            const deadline = deadlineInput.value;
+            const priority = prioritySelect.value;
+
+            if (taskText) {
+                const task = {
+                    text: taskText,
+                    category: category,
+                    deadline: deadline,
+                    priority: priority,
+                    completed: false
+                };
+                tasks.push(task);
+                taskInput.value = '';
+                categorySelect.value = '';
+                deadlineInput.value = '';
+                prioritySelect.value = '';
+                renderTasks();
+            }
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            tasks.sort((a, b) => {
+                const isAWorkHighPriority = a.category === 'work' && (a.priority === 'high' || a.priority === 'medium');
+                const isBWorkHighPriority = b.category === 'work' && (b.priority === 'high' || b.priority === 'medium');
+                if (isAWorkHighPriority && !isBWorkHighPriority) {
+                return -1;
+            }
+            if (!isAWorkHighPriority && isBWorkHighPriority) {
+                return 1;
+            }
+            return 0; 
+        });
+
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            const taskItem = document.createElement('li');
+            taskItem.classList.toggle('completed', task.completed);
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = task.completed;
+            checkbox.addEventListener('change', () => {
+                task.completed = checkbox.checked;
+                renderTasks();
+            });
+
+            const taskText = document.createElement('span');
+            taskText.textContent = `${task.text} (${task.category}) - ${task.deadline} [${task.priority}]`;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => {
+                tasks.splice(i, 1);
+                renderTasks();
+            });
+
+            taskItem.appendChild(checkbox);
+            taskItem.appendChild(taskText);
+            taskItem.appendChild(deleteButton);
+            taskList.appendChild(taskItem);
+        }
+    }
+</script>
